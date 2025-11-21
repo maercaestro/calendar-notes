@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER_CAL // 2077</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #fcee0a;
+            --dark-bg: #050505;
+            --panel-bg: #0a0a0a;
+            --border-color: #1f2937;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #e5e7eb;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .cyber-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border: 1px solid var(--neon-cyan);
+        }
+
+        /* Cyberpunk Effects */
+        .neon-text-cyan {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+        }
+
+        .neon-text-pink {
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink);
+        }
+
+        .cyber-border {
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan), inset 0 0 5px rgba(0, 243, 255, 0.2);
+            position: relative;
+        }
+
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid var(--neon-pink);
+            border-left: 2px solid var(--neon-pink);
+        }
+        
+        .cyber-border::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            border-bottom: 2px solid var(--neon-pink);
+            border-right: 2px solid var(--neon-pink);
+        }
+
+        .cyber-btn {
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .cyber-btn:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .cyber-btn.secondary {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .cyber-btn.secondary:hover {
+            background: var(--neon-pink);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        /* Grid Background Pattern */
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        /* CRT Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Calendar Specifics */
+        .day-cell {
+            transition: all 0.2s;
+        }
+        .day-cell:hover {
+            background-color: rgba(0, 243, 255, 0.1);
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+        .has-note {
+            border-bottom: 2px solid var(--neon-pink);
+            background: rgba(255, 0, 255, 0.1);
+        }
+        .is-today {
+            background-color: var(--neon-cyan);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Glitch Animation for Title */
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        .glitch-hover:hover {
+            animation: glitch 0.3s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="scanlines"></div>
+
+    <div class="min-h-screen p-4 md:p-8 relative z-10">
+        
+        <!-- Header -->
+        <header class="max-w-7xl mx-auto mb-8 border-b border-gray-800 pb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-6xl font-bold glitch-hover neon-text-cyan tracking-wider mb-2">NET_CALENDAR</h1>
+                <p class="text-sm text-gray-400 tracking-[0.2em]">SYSTEM_VERSION_2.0 // SECURE_STORAGE</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-black/50 p-4 border border-gray-800 cyber-border">
+                <button onclick="changeYear(-1)" class="text-2xl hover:text-[var(--neon-cyan)] transition-colors px-2">
+                    <i class="fa-solid fa-caret-left"></i>
+                </button>
+                <span id="currentYearDisplay" class="text-4xl font-bold neon-text-pink font-[Orbitron]">2025</span>
+                <button onclick="changeYear(1)" class="text-2xl hover:text-[var(--neon-cyan)] transition-colors px-2">
+                    <i class="fa-solid fa-caret-right"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Calendar Grid -->
+        <main id="calendarGrid" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Months will be injected here via JS -->
+        </main>
+
+        <!-- Data Stats Footer -->
+        <footer class="max-w-7xl mx-auto mt-12 border-t border-gray-800 pt-6 flex justify-between text-xs text-gray-500 uppercase">
+            <div id="storageStatus">Status: Connected</div>
+            <div id="notesCount">Fragments Found: 0</div>
+            <button onclick="clearAllData()" class="hover:text-red-500 transition-colors">[Purge Memory]</button>
+        </footer>
+
+    </div>
+
+    <!-- Note Editor Modal -->
+    <div id="noteModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
+        <div class="bg-[#0a0a0a] border border-[var(--neon-cyan)] p-6 w-full max-w-lg relative shadow-[0_0_30px_rgba(0,243,255,0.2)] transform transition-all scale-95 opacity-0" id="modalContent">
+            
+            <!-- Modal Decorative Corners -->
+            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[var(--neon-pink)]"></div>
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[var(--neon-pink)]"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[var(--neon-pink)]"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[var(--neon-pink)]"></div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalDateTitle" class="text-2xl neon-text-cyan">DATE_SELECTED</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <textarea id="noteInput" rows="6" class="w-full bg-black border border-gray-700 p-4 text-[#00f3ff] focus:border-[var(--neon-pink)] focus:outline-none font-mono mb-6" placeholder="ENTER DATA FRAGMENT..."></textarea>
+
+            <div class="flex justify-end gap-4">
+                <button onclick="deleteNote()" class="cyber-btn secondary px-6 py-2 text-sm tracking-wider">
+                    <i class="fa-solid fa-trash mr-2"></i>Purge
+                </button>
+                <button onclick="saveNote()" class="cyber-btn px-6 py-2 text-sm tracking-wider">
+                    <i class="fa-solid fa-floppy-disk mr-2"></i>Save Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let currentYear = new Date().getFullYear();
+        let notes = JSON.parse(localStorage.getItem('cyberpunkCalendarNotes')) || {};
+        let selectedDate = null;
+
+        const months = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const dayNames = ["S", "M", "T", "W", "T", "F", "S"];
+
+        // --- DOM Elements ---
+        const grid = document.getElementById('calendarGrid');
+        const yearDisplay = document.getElementById('currentYearDisplay');
+        const modal = document.getElementById('noteModal');
+        const modalContent = document.getElementById('modalContent');
+        const noteInput = document.getElementById('noteInput');
+        const modalTitle = document.getElementById('modalDateTitle');
+        const notesCountDisplay = document.getElementById('notesCount');
+
+        // --- Initialization ---
+        function init() {
+            renderCalendar(currentYear);
+            updateStats();
+        }
+
+        // --- Calendar Logic ---
+        function changeYear(delta) {
+            currentYear += delta;
+            renderCalendar(currentYear);
+        }
+
+        function renderCalendar(year) {
+            yearDisplay.innerText = year;
+            grid.innerHTML = '';
+
+            months.forEach((month, index) => {
+                const monthCard = document.createElement('div');
+                monthCard.className = 'bg-black/40 border border-gray-800 p-4 hover:border-gray-600 transition-colors relative overflow-hidden';
+                
+                // Month Header
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center mb-4 border-b border-gray-800 pb-2';
+                header.innerHTML = `
+                    <h2 class="text-lg font-bold text-white tracking-wide">${month.toUpperCase()}</h2>
+                    <span class="text-[10px] text-[var(--neon-cyan)]">0${index + 1}</span>
+                `;
+                monthCard.appendChild(header);
+
+                // Days Header (S M T W T F S)
+                const daysGrid = document.createElement('div');
+                daysGrid.className = 'grid grid-cols-7 gap-1 text-center mb-2';
+                
+                dayNames.forEach(day => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'text-gray-600 text-xs font-bold';
+                    dayHeader.innerText = day;
+                    daysGrid.appendChild(dayHeader);
+                });
+
+                // Days Calculation
+                const firstDay = new Date(year, index, 1).getDay();
+                const daysInMonth = new Date(year, index + 1, 0).getDate();
+
+                // Empty slots for start of month
+                for (let i = 0; i < firstDay; i++) {
+                    const empty = document.createElement('div');
+                    daysGrid.appendChild(empty);
+                }
+
+                // Actual Days
+                const today = new Date();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${String(index + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const dayBtn = document.createElement('div');
+                    
+                    let classes = 'day-cell h-8 flex items-center justify-center text-sm cursor-pointer text-gray-400 hover:text-white ';
+                    
+                    // Check for note
+                    if (notes[dateStr]) {
+                        classes += 'has-note text-[var(--neon-pink)] font-bold ';
+                    }
+
+                    // Check for today
+                    if (year === today.getFullYear() && index === today.getMonth() && d === today.getDate()) {
+                        classes += 'is-today ';
+                    }
+
+                    dayBtn.className = classes;
+                    dayBtn.innerText = d;
+                    dayBtn.onclick = () => openModal(dateStr);
+
+                    daysGrid.appendChild(dayBtn);
+                }
+
+                monthCard.appendChild(daysGrid);
+                grid.appendChild(monthCard);
+            });
+        }
+
+        // --- Modal Logic ---
+        function openModal(dateStr) {
+            selectedDate = dateStr;
+            modalTitle.innerText = dateStr;
+            noteInput.value = notes[dateStr] || '';
+            
+            modal.classList.remove('hidden');
+            // Small delay for animation
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                selectedDate = null;
+            }, 200);
+        }
+
+        // Close modal on clicking background
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // --- Data Operations ---
+        function saveNote() {
+            if (!selectedDate) return;
+            
+            const content = noteInput.value.trim();
+            if (content) {
+                notes[selectedDate] = content;
+            } else {
+                delete notes[selectedDate];
+            }
+            
+            localStorage.setItem('cyberpunkCalendarNotes', JSON.stringify(notes));
+            
+            closeModal();
+            renderCalendar(currentYear); // Re-render to show/hide pink indicators
+            updateStats();
+        }
+
+        function deleteNote() {
+            if (!selectedDate) return;
+            delete notes[selectedDate];
+            localStorage.setItem('cyberpunkCalendarNotes', JSON.stringify(notes));
+            noteInput.value = '';
+            closeModal();
+            renderCalendar(currentYear);
+            updateStats();
+        }
+
+        function clearAllData() {
+            if(confirm("WARNING: SYSTEM PURGE INITIATED. DELETE ALL DATA?")) {
+                notes = {};
+                localStorage.removeItem('cyberpunkCalendarNotes');
+                renderCalendar(currentYear);
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            const count = Object.keys(notes).length;
+            notesCountDisplay.innerText = `FRAGMENTS FOUND: ${count}`;
+            notesCountDisplay.className = count > 0 ? 'text-[var(--neon-cyan)]' : 'text-gray-500';
+        }
+
+        // Start System
+        init();
+
+    </script>
+</body>
+</html>
